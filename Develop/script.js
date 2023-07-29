@@ -1,18 +1,21 @@
 
 $(document).ready();
+$('#currentDay').text(`Current date:  ${headerTime()}`); // add current date to header.
+bgColorChanger();
+console.log('this: ', this);
 
-
+// Main Function:
 $(function () {
-  var userArray = [];
-  var userObj = {};
-  $('#currentDay').text(`Current date:  ${headerTime()}`);
-
+  var userArray = []; // holds the user object
+  var userObj = {}; // holds the time value and description entered.
+  
   // Event listener: 
   $(".time-block").on("click", function () {
-    var timeBlockId = $(this).attr("id");
-    console.log("timeBlockId: ", timeBlockId)
-    var userInput = $(this).find(".description").val();
-   
+    var timeBlockId = $(this).attr("id"); // returns the id value
+    console.log("timeBlockId: ", timeBlockId);
+    var userInput = $(this).find(".description").val(); // return the value inputed by user.
+    console.log("userInput: ", userInput);
+
     userObj.time = timeBlockId;
     userObj.description = userInput;
 
@@ -26,50 +29,43 @@ $(function () {
     
     // headerTime(); // done
     // getCurrentTime(); // done
-    hourBlockId(timeBlockId);
+    bgColorChanger(timeBlockId); // should be standalone function that runs when page loads.
     // getLocalValues();
   
   
   });
-
-  /*  TODO: 
-    - Add code to apply the past, present, or future class to each 
-      time-block by comparing the id to the current hour. 
-      HINTS: How can the id attribute of each time-block be used to 
-      conditionally add or remove the past, present, and future classes? 
-  */
-
-   
-
-
 });
 
-// Functions: 
-function headerTime() { // done and working.
+// Helper Functions: 
+function headerTime() {
   var hTime =  dayjs().format("MM DD, YYYY");
   return hTime;
 } 
-function getCurrentTime() { // done and working.
+function getCurrentTime() { 
   var currentTime = dayjs().format("H:mm:ss");
   return currentTime;
 }
-function hourBlockId(id) { // compares time with preseent time and assigns bg-color.
-  var currentTime = dayjs().format("H")
-  console.log(currentTime);
-  console.log("event: ", id);
-  
-  for(var i = 0; i < 8; i++) {
-    var calendarTime = parseInt($(this).attr("id").split("-")[1])
-    console.log("calendarTime: ", calendarTime)
-    if(calendarTime < currentTime) {
-      //remove present or future class
+function bgColorChanger() { // compares time with preseent time and assigns bg-color to all textarea boxes.
+  $(".row").each(function() {
+    var currentTime = dayjs().format("H");
+    var timeBlockTime = parseInt($(this).attr("id").split("-")[1]); // means split on the '-' and return the array at postion 1.
+    
+    console.log("currentTime: ", currentTime);
+    console.log("timeBlockTime: ", timeBlockTime);
+    
+    if(timeBlockTime < currentTime) {
+      $(this).removeClass("present", "future");
       $(this).find(".description").addClass("past");
-    } else if(calendarTime > currentTime) {
+    } else if(timeBlockTime > currentTime) {
+      $(this).removeClass("past", "present");
       $(this).find(".description").addClass("future");
     } else {
+      $(this).removeClass("past", "future");
       $(this).find(".description").addClass("present");
     }
-  }
+  })
+  
+ 
   
 }
 function getLocalValues() {
@@ -79,5 +75,6 @@ function getLocalValues() {
   HINT: How can the id attribute of each time-block be used to do this?
   */
 //  how do we get the local storage base on the I 
+var calendarTime = parseInt(hourId.split("-"))
 }
 
