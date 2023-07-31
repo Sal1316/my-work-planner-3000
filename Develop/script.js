@@ -1,62 +1,39 @@
 
 $(document).ready();
-$('#currentDay').text(`Current date:  ${headerTime()}`); // add current date to header.
-bgColorChanger();
-console.log('this: ', this);
+
+// Event Handlers: 
+$('.elTime').text(`Current date:  ${headerTime()}`); // add current date to header.
+bgColorChanger(); // sets the colors base on the time from current time.
+getLocalValues();
+
 
 // Main Function:
 $(function () {
-  var userArray = []; // holds the user object
-  var userObj = {}; // holds the time value and description entered.
-  
-  // Event listener: 
-  $(".time-block").on("click", function () {
-    var timeBlockId = $(this).attr("id"); // returns the id value
-    console.log("timeBlockId: ", timeBlockId);
-    var userInput = $(this).find(".description").val(); // return the value inputed by user.
-    console.log("userInput: ", userInput);
-
-    userObj.time = timeBlockId;
-    userObj.description = userInput;
-
-    userArray.push(userObj);
-
-    localStorage.setItem("userArray", JSON.stringify(userArray));
-    var localDesc = JSON.parse(localStorage.getItem("userArray"));
-    var localHolder = localDesc[0].description
-
-    $(this).find("description").val(localHolder); //NOT WORKING.
-    
-    // headerTime(); // done
-    // getCurrentTime(); // done
-    bgColorChanger(timeBlockId); // should be standalone function that runs when page loads.
-    // getLocalValues();
-  
-  
-  });
+  $(".saveBtn").on("click", saveBtnClick);
+  getCurrentTime();
 });
 
 // Helper Functions: 
 function headerTime() {
-  var hTime =  dayjs().format("MM DD, YYYY");
+  var hTime = dayjs().format("dddd, MMMM DD, YYYY");
   return hTime;
-} 
-function getCurrentTime() { 
+}
+
+function getCurrentTime() {
   var currentTime = dayjs().format("H:mm:ss");
   return currentTime;
 }
+
 function bgColorChanger() { // compares time with preseent time and assigns bg-color to all textarea boxes.
-  $(".row").each(function() {
+  $(".row").each(function () {
+    //bug: might need to convert all time id's to 24 hrs..
     var currentTime = dayjs().format("H");
-    var timeBlockTime = parseInt($(this).attr("id").split("-")[1]); // means split on the '-' and return the array at postion 1.
-    
-    console.log("currentTime: ", currentTime);
-    console.log("timeBlockTime: ", timeBlockTime);
-    
-    if(timeBlockTime < currentTime) {
+    var timeBlockTime = parseInt($(this).attr("id").split("hour")[1]); // means split on the '-' and return the array at postion 1.
+
+    if (timeBlockTime < currentTime) {
       $(this).removeClass("present", "future");
       $(this).find(".description").addClass("past");
-    } else if(timeBlockTime > currentTime) {
+    } else if (timeBlockTime > currentTime) {
       $(this).removeClass("past", "present");
       $(this).find(".description").addClass("future");
     } else {
@@ -64,17 +41,53 @@ function bgColorChanger() { // compares time with preseent time and assigns bg-c
       $(this).find(".description").addClass("present");
     }
   })
-  
- 
-  
-}
-function getLocalValues() {
-  /* 
-  Add code to get any user input that was saved in localStorage and set
-  the values of the corresponding textarea elements. 
-  HINT: How can the id attribute of each time-block be used to do this?
-  */
-//  how do we get the local storage base on the I 
-var calendarTime = parseInt(hourId.split("-"))
 }
 
+function saveBtnClick() { // stores the values in Local.
+  var userObj = {}; // holds the time value and description entered.
+
+  var timeBlockId = $(this).parent().attr("id"); // returns the id value
+  var userInput = $(this).parent().find(".description").val(); // return the value inputed by user.
+
+  console.log('timeBlockId: ' + timeBlockId + ',\n' + 'userInput: ' + userInput)
+
+  var userObjString = localStorage.getItem("userObj");
+  var userObj = userObjString ? JSON.parse(userObjString) : {};
+
+  userObj[timeBlockId] = userInput; // when using brackets, you are 'making' a key property.
+
+  localStorage.setItem("userObj", JSON.stringify(userObj));
+
+};
+
+function getLocalValues() {
+  // get the values from local storage:
+  var localArr = JSON.parse(localStorage.getItem("userObj")) || [];
+  // console.log('2-localArr: ', localArr);
+  // console.log('2-localArr key: ', Object.keys(localArr)); // 9 items in array.
+
+  // loop through the id's:
+  $('[id]').each(function () {
+    console.log('1. this: ', this);
+   
+    var key = this.id;
+    var value = localArr[key];
+    console.log('2. key: ', key); //refers to the current element in the loop and gives the ID of the current element
+    console.log('3. value: ', value);
+    
+    $(this).find(".description").append(value || '');
+
+  })
+}
+
+
+
+/* BUGS: 
+ - should not be able to put any code if grey box?
+
+
+ 
+
+
+
+*/ 
